@@ -508,14 +508,17 @@ function fmtCotNum(n){
 async function incrementarContador(){
   const actual=COT_CONTADOR;
   COT_CONTADOR++;
-  const tk=await getGSToken();
-  if(tk){
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
-      method:'PUT',
-      headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
-      body:JSON.stringify({values:[[COT_CONTADOR]]})
-    });
-  }
+  // Intentar guardar en Sheet en background
+  try{
+    const tk=await getGSToken();
+    if(tk){
+      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
+        method:'PUT',
+        headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+        body:JSON.stringify({values:[[COT_CONTADOR]]})
+      });
+    }
+  }catch(e){console.log('Contador no guardado en Sheet',e);}
   return actual;
 }
  
@@ -776,7 +779,7 @@ async function guardarCotizacion(){
   proyectos.push({_row:proyectos.length+2,cliente,nombre:'Cotización guardada',m2,precio:cotCache.precioUsado,precioAp:ap,tinetas:cotCache.tin,inicio:today(),estado:'pendiente',notas:'Generado desde cotizador'});
   updateStats();renderProyectos();
   showMsg('msg-cot',true,'✓ Guardado como proyecto pendiente.');
-  setTimeout(()=>{limpiarCotizador();goPage('proyectos');},1500);
+  setTimeout(()=>goPage('proyectos'),1500);
 }
  
 async function generarPDF(){
