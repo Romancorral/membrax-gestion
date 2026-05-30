@@ -492,6 +492,7 @@ function goPage(id){
   document.querySelectorAll('.nav-btn')[idx].classList.add('active');
 }
  
+// ══ CONFIG ══
 async function guardarConfig(){
   const tineta=parseFloat(document.getElementById('cfg-tineta').value)||69500;
   const m2tin=parseFloat(document.getElementById('cfg-m2tineta').value)||7;
@@ -505,21 +506,15 @@ function fmtCotNum(n){
   return 'CT-'+String(n).padStart(4,'0');
 }
  
-async function incrementarContador(){
-  const actual=COT_CONTADOR;
-  COT_CONTADOR++;
-  // Intentar guardar en Sheet en background
+async function getSiguienteNumCot(){
+  // Contar filas en Cotizaciones para obtener el siguiente número
   try{
-    const tk=await getGSToken();
-    if(tk){
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
-        method:'PUT',
-        headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
-        body:JSON.stringify({values:[[COT_CONTADOR]]})
-      });
-    }
-  }catch(e){console.log('Contador no guardado en Sheet',e);}
-  return actual;
+    const rows = await sheetRead('Cotizaciones!A2:A1000');
+    const total = rows.filter(r=>r.length>0&&r[0]).length;
+    return total+1;
+  }catch(e){
+    return COT_CONTADOR;
+  }
 }
  
 function switchItab(id,el){
@@ -757,16 +752,18 @@ function calcularCotizacion(){
   document.getElementById('cr-margenp').textContent=`${mp}%`;
 }
  
-function limpiarCotizador(){
+async function limpiarCotizador(){
   ['cot-cliente','cot-rut','cot-dir','cot-contacto','cot-m2','cot-precio-manual'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('cot-ap').value='4000';
-  document.getElementById('cot-num').value=fmtCotNum(COT_CONTADOR);
   const venc=vencimiento();
   document.getElementById('cot-nota').value=`Cotización válida por 10 días hábiles (vence el ${fmt(venc)}). Precios netos, IVA incluido en el total.`;
   document.getElementById('cot-result').style.display='none';
   document.getElementById('precio-hint').textContent='Se calcula automático según m²';
   document.getElementById('precio-hint').className='precio-hint';
   cotCache={};
+  // Actualizar número para siguiente cotización
+  const n=await getSiguienteNumCot();
+  document.getElementById('cot-num').value=fmtCotNum(n);
 }
  
 async function guardarCotizacion(){
@@ -789,9 +786,10 @@ async function generarPDF(){
   const rut=document.getElementById('cot-rut').value||'';
   const dir=document.getElementById('cot-dir').value||'';
   const contacto=document.getElementById('cot-contacto').value||'';
+  // Número automático basado en cotizaciones guardadas
   let numCampo=document.getElementById('cot-num').value;
   if(!numCampo){
-    const n=await incrementarContador();
+    const n=await getSiguienteNumCot();
     numCampo=fmtCotNum(n);
     document.getElementById('cot-num').value=numCampo;
   }
@@ -965,22 +963,13 @@ async function generarPDF(){
  
     doc.save(`Cotizacion_Membrax_${num}.pdf`);
  
-    // Guardar cotización en Sheets y actualizar contador
+    // Guardar cotización en Sheets
     try{
       const id=genId();
       await sheetAppend('Cotizaciones',[
         id,num,today(),cliente,rut,dir,contacto,
         m2,precioUsado,ap,neto,iva,totalIva,nota
       ]);
-      // Actualizar contador en Sheets
-      const tk=await getGSToken();
-      if(tk){
-        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
-          method:'PUT',
-          headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
-          body:JSON.stringify({values:[[COT_CONTADOR]]})
-        });
-      }
     }catch(e){console.log('Error guardando cotización:',e);}
  
     showMsg('msg-cot',true,`✓ PDF descargado y cotización ${num} guardada.`);
@@ -1057,9 +1046,9 @@ document.getElementById('pr-inicio').value=today();
 const venc=vencimiento();
 document.getElementById('cot-nota').value=`Cotización válida por 10 días hábiles (vence el ${fmt(venc)}). Precios netos, IVA incluido en el total.`;
  
-loadAll().then(()=>{
-  // Número de cotización se actualiza después de cargar config
-  document.getElementById('cot-num').value=fmtCotNum(COT_CONTADOR);
+loadAll().then(async ()=>{
+  const n=await getSiguienteNumCot();
+  document.getElementById('cot-num').value=fmtCotNum(n);
 });
 </script>
 </body>
