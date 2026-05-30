@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/api/gs-token", "destination": "/api/gs-token.js" }
+  ]
+}

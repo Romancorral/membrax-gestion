@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membrax · Gestión</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#111827;background:#f9fafb;}
+.topbar{background:#1B3A6B;color:#fff;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
+.topbar-logo{height:36px;}
+.topbar-title{font-size:13px;opacity:.7;}
+.nav{display:flex;gap:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;}
+.nav-btn{padding:12px 20px;font-size:14px;font-weight:500;border:none;background:none;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.nav-btn.active{color:#1B3A6B;border-bottom:2px solid #1D9E75;}
+.nav-btn:hover{color:#1B3A6B;}
+.page{display:none;padding:24px;max-width:1100px;margin:0 auto;}
+.page.active{display:block;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid #e5e7eb;}
+.stat-l{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.stat-v{font-size:24px;font-weight:600;color:#111827;}
+.stat-s{font-size:11px;color:#9ca3af;margin-top:2px;}
+.card{background:#fff;border-radius:10px;padding:20px;margin-bottom:16px;border:1px solid #e5e7eb;}
+.card-title{font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:12px;color:#6b7280;font-weight:500;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.fr4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+input,select,textarea{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#111827;font-family:inherit;background:#fff;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.1);}
+textarea{resize:vertical;min-height:60px;}
+.btn{padding:9px 20px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:14px;font-weight:500;cursor:pointer;color:#374151;transition:.15s;}
+.btn:hover{background:#f9fafb;}
+.btn-p{background:#1D9E75;color:#fff;border-color:#1D9E75;}.btn-p:hover{background:#0F6E56;}
+.btn-pdf{background:#1B3A6B;color:#fff;border-color:#1B3A6B;}.btn-pdf:hover{background:#142D55;}
+.btn-d{color:#dc2626;border-color:#fca5a5;background:#fff;font-size:12px;padding:5px 10px;}.btn-d:hover{background:#fef2f2;}
+.btn-e{color:#2563eb;border-color:#bfdbfe;background:#fff;font-size:12px;padding:5px 10px;}.btn-e:hover{background:#eff6ff;}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;}
+.b-in{background:#dcfce7;color:#166534;}.b-obra{background:#fee2e2;color:#991b1b;}.b-venta{background:#f3e8ff;color:#6b21a8;}
+.b-open{background:#dbeafe;color:#1e40af;}.b-done{background:#dcfce7;color:#166534;}.b-pend{background:#fef3c7;color:#92400e;}
+.b-custom{background:#fef3c7;color:#92400e;}
+.itabs{display:flex;margin-bottom:16px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+.itab{flex:1;padding:9px;font-size:13px;font-weight:500;border:none;background:#f9fafb;color:#6b7280;cursor:pointer;text-align:center;transition:.15s;}
+.itab.active{background:#1D9E75;color:#fff;}
+.isec{display:none;}.isec.active{display:block;}
+.fbox{background:#f9fafb;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid #e5e7eb;}
+.fl{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;font-weight:500;}
+.freset{padding:8px 14px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:13px;cursor:pointer;color:#6b7280;}
+.freset:hover{background:#f9fafb;}
+.sub-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px;background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:12px 16px;}
+.sub-i .sl{font-size:11px;color:#065f46;text-transform:uppercase;letter-spacing:.04em;font-weight:600;}
+.sub-i .sv{font-size:20px;font-weight:600;color:#111827;}
+.sub-i .ss{font-size:11px;color:#6b7280;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:#6b7280;border-bottom:1px solid #e5e7eb;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;background:#f9fafb;}
+td{padding:10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
+tr:hover td{background:#f9fafb;}
+tr:last-child td{border-bottom:none;}
+.empty{text-align:center;color:#9ca3af;font-size:14px;padding:40px 0;}
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;}
+.aw{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.ri{font-size:12px;color:#9ca3af;margin-bottom:8px;}
+.msg{margin-top:10px;font-size:13px;display:none;padding:8px 12px;border-radius:6px;}
+.msg.ok{background:#dcfce7;color:#166534;}
+.msg.err{background:#fee2e2;color:#dc2626;}
+.proy-card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid #e5e7eb;}
+.proy-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.proy-nombre{font-size:16px;font-weight:600;color:#111827;}
+.proy-resumen{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+.pr-col{background:#f9fafb;border-radius:8px;padding:12px;}
+.pr-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280;margin-bottom:8px;}
+.pr-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #f3f4f6;}
+.pr-row:last-child{border-bottom:none;}
+.pr-row.verde{color:#1D9E75;font-weight:700;}
+.pr-row.azul{color:#1B3A6B;font-weight:700;font-size:13px;}
+.pr-lbl{color:#6b7280;}
+.cot-section{background:#f9fafb;border-radius:8px;padding:12px 16px;margin-bottom:10px;border:1px solid #e5e7eb;}
+.cot-section-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+.cot-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f3f4f6;font-size:14px;}
+.cot-row:last-child{border-bottom:none;}
+.cot-row.total-neto{font-weight:600;}
+.cot-row.total-iva{font-weight:700;font-size:16px;color:#1B3A6B;}
+.cot-row.margen{font-weight:700;font-size:15px;color:#1D9E75;}
+.tag-ap{font-size:11px;color:#6b21a8;background:#f3e8ff;padding:2px 8px;border-radius:99px;margin-left:6px;}
+.tag-prod{font-size:11px;color:#166534;background:#dcfce7;padding:2px 8px;border-radius:99px;margin-left:6px;}
+.tag-custom{font-size:11px;color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:99px;margin-left:6px;}
+.precio-hint{font-size:11px;color:#9ca3af;margin-top:3px;}
+.precio-hint.custom{color:#92400e;font-weight:600;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-title{font-size:17px;font-weight:600;margin-bottom:20px;color:#111827;}
+.divider{height:1px;background:#e5e7eb;margin:16px 0;}
+.pdf-loading{font-size:13px;color:#1B3A6B;display:none;align-items:center;gap:6px;}
+.rg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.rg-item .rg-l{font-size:11px;color:#6b7280;margin-bottom:2px;}
+.rg-item .rg-v{font-size:15px;font-weight:600;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #e5e7eb;border-top-color:#1B3A6B;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img class="topbar-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCADAAlgDASIAAhEBAxEB/8QAHQAAAgICAwEAAAAAAAAAAAAAAAEHCAUGAgQJA//EAFgQAAEDAgMEBAYLCwgJBQEBAAEAAgMEBQYHERIhMUEIE1FhFBciVnGSFSMyQlJzgZOUsbIWJzM2RmJykaHB0QkYJDd0dYLhJSY0Q0RFU1RlVWNkg6KE0v/EABsBAQADAQEBAQAAAAAAAAAAAAABAgMEBQYH/8QAMBEAAgEDAQYFAwUBAQEAAAAAAAECAwQREgUTITFRoSIjQWFxMjOxNJHB0eEG8CT/2gAMAwEAAhEDEQA/ALjbkdyYRv1QAhCAUAIScdDqSuXFAJB7UHcgIBehPihCAEI1QgDmhHNCAEIG5BKAEka6ndvTQCTQUkAFM8EDhvS+VAHFPTcUu9CAYRog9yEAbkbkI9KAWiNU0kAI3ICCgGkhNACEb0IA3IRzQgEjdojlqmgEEJo4lACEI+pAGm9CEIBI3BPTTihAJCEaIAHFG5ATCACUJFNACBokhAPmhLgjmgA6po4pBAP0oQjegF6U0I368UAkHigjenoEADcjQIRqgEBu3o3BB1RzQANEI7k0AFHFIoG4IB8EJckIB8UJBPcgEO9dO7XShtVBLX3GripaSIavlkdoB/ErW80cxMN5e2c199qh1r9RBSxnWSZ3YByHeqVZs5m4kzFu7prjPJSWth0p7dG7RgHa/tK9XZ2yqt49XKPX+jkubuFHhzZLGZvSYuLsRxQ4DhjdbKOTWSonb/tfaAD7kd6mvKHNfDmYdqY+knZR3VoAqLfK/R7Hfm/CHoVBuWmmgHBfagq6ugrIq631UtHWRHWOeF2y9vy9i+kuNh206KhBYa9f7PNp39SM8y4o9NWkO3DiOKe9V1yO6QlNdzS2HHMkVFczpHFXDdFOeADuw96sQx7XtD2uBaRq1wOoI7ivj7q0q2s9FRf6exSrRqrMWckJo3rmNRc0D0ITCAEaI4c1wfIGjXlpqSToB6SgOTiGtJJ0CxOJsQ2bDttkuF7uMFDTMaXF0jtCdOwc1FObmf8Ah3Cbp7VYCy9XpmrS1h9qhP5x5/Iqn4wxXiHGF0kuWJLlJWSudtNh1PUxdzW8l7lhsSrcYnU8Me7+DguL6FPhHiyfKvpAXPFGZFosWFqfwGxyVbWSVEg1kqBr2e9Cs8w6veDyOgXnjlWfvlYe/tjPrXobH+Fk/SVtuWtK2lCFNYWP5FjWnVUnJ+pzKOaCd/BC8E7w5oQhACEckIACD6EfKhAA4IQhACNEIQBqkgJnggBBRyQgAJJpIBoSQEAb0+SBuRuQB3o4pIQDRuSKEA9yBxQlwQDKEIQCT7kEpBANG/klyT5IBapoQgBIoTCARRomUggHuSCaSAaBvQkCgGhCR4oA5phAQgBJHJGoQDCEuKOaAfyJcUzwSCAE0kDvQD5oS5oQDQeSEHiPSgKMdK6aWTPW5iSR8gipohGHHUM3cgoqIUodKr+vO8fERfUoxC/SbFf/AC0/hfg+ZuONWXycfQm0c0PLWN2nuDWjmVzAXUZCcxj2Fjhq08VNOSue92wcaeyYlMtzsOoY2UnWalHd2tChc7ktVjXtqdxDRUWUXp1ZU5aos9KMPXq2X22Q3K0V0NbRzNDo5Ynaj0HsKyfFeeeV2YeIsu702uss5monH+k2+Vx6qUfuPoV0MqczsOZg28zWmfqq6Nus9DKQJI+8DmF8TtHZNS0epcY9f7PctruFbhyZvem9JxDRvXwra2mo6SWqqpo4KeJpdJLI7RrAO0qu+bPSUoaET2rAkLLjVaFhr5D7VGe1naVxWtlWupaaaz+DerWhSWZMmfMDHOG8E2qSvxBcoqdoaTHCDrJKeQaFUjNbPnFGNOuobS6WxWV+reqYdJpW/nn+CjG93a6324SXK93Ce41sp1dLK7XTuA4BdIa9uq+xsdi0bbEp+KXZfB4txfTq8I8EEYaxuy0aAnU8yVy1036gAJOOgHE6nZaANS49gVhMiej/AD3SWmxJjyB9Nb4wJYLa/c6XmHSdgXoXV5StYa6j/wBOejRlVliJrfR0yvxFijFFDiR8TrfZLfKJRUSt0NS4HgwfWrsMGjnO+EdVpNPi+3MvtFhuxU0XgzdWOewaMYBybpxW79oC+D2hfTvKmqSwlyR79vQjRjhAg6IRouA6Bck0uaaAEIHBCAOaEaIQAhATQHFNCOaAOIQhCAEI5oQA3glvOoTHBCAQ4poQEAJJo4IBaIOiNe1HFAMHchBQgBCOaEAkHVNGiARG5CaWiAbUvSgJhAJNCOCASaQTQByST5JaIAKAjigIBo9CXApoAQjiUIASCaW5APmjRJPVALRHBCEAb09+iEkAIKAmUAtEJoQAkeI9KN+qDxHpQFFelSPv53j4iL6lGDVJ3SnP39Lz8RF9SjEcV+lWP6an8L8HzNx92XybvkdQUV0zYsVuuNLHVUlRKWSwvG5w0Ui53dH+4WA1F/wU11famuLpqHeZYBrv2PhBaB0fpAzOjDOvOp0/YrWY8zjsGCszaPB+IoJKWGvpTNFcAdWNOumy4fvXibVva1rdxdPljl6Tid1pQhVotS6lGHHe5uhDmnRzSNC09hHIriri5w5J2LHtGMQ4TlpLfd3t22TQaGnqx2HTcCe1VOxTYLvhi8yWi/0MlBWMO5rx5L+9p5/IvVsdo0ruPheH09Tkr206L48jGBd2z3Gvs90gu1prJaKugcCyaJxHyHtC6Q9CfcvQkk1hnOnh5RuuYuaGM8dUtPR3u4ujo4W6GCA7AlPwnacVpIa1rdlrQ1o4ADRMLkN6zpUoUo6aawiZzlJ5k8nDRfa30dZcK6Kgt1JNV1czg2KGJu05xPd2LN4FwjfMbXxtow/TGaX/AHsxHtcA7XHh8it5ltl9hPJ7Dvh9bNHWXeQe3Vr2+VI74MY96FwbR2nTs1jnLp/Z0W1rKs88ka1knkZbMIU8OKsbuhqLqxvWMgfoYaX/AP05ZzG+NZ7yZKK2Pkp6DXRz+DpdPqCxWLMW3DEVSesJgomn2unB493u1YMnVfE3FzUuJ66jyz3adKNOOmJnMvmgYwoABoBqp65lQPl9vxhQns1U8cyuWRogc4NGpXDrG/CCjTpIZgXfLjLp2IbLTQ1FSKhsWxKPJ0KrT/O7zC0Gtitm8A8FeNOUllFZTUeZeHrGcSQjrGa8QqOHpeZh67rHax8iB0vMxNd9ktf6lO4mRvYl5OsZ2hLrG9oVHf53uYI/5FbP1JfzvswP/QrZ+pNzMb2JeTrGdoTBDhq06hUcb0vMwXODRYrZv7lZboy4/u+ZOV0OJr5BBDVvqZYi2EaN0adAqypyjzLRmpciTXOA3k6Lj1jTzCjDpMZhXnLXLd2I7JTQVFSJ2xbMw1aATpqq3jpdZhMkG3YLY8NILgN2o4n9imNOUllCU1HmXj5JFajlPj20ZiYMo8SWc7LJhszwOOr4JObHLb1m1gsJCfNHoQAuJIA1PBcncNVDPSWzrpsrLPT0tvjhrcR1p1p6Vx3Mj5vd/BSk28IhvBMQlZpxC5A6jUKijul7mQIZXew1qBZGXa7G7UK5mXN5qsQ4Esl9rWMZU11JHNK1m5oJGu5WlBx5kRkpcjPk7I1K49Y3tCjrpGY+umXOWdRiW0U0NRUxyNYGS+50J0VZJOl7j9p0FhtnBTGnKSyiJTUeZeDrGdoT6xnaFRlvS9zE52S1n5Ez0vswh/yK1/qTcTG9iXkEjPhBcmkHgVRhvS/zC132K16ehbRhfpjT9a2PE+ET1JI2pqaYat79OaOjJBVIlwEFa7gDGFhxvh2C/Ydrm1VFMNNeDo3fBcORWxLI0DkhI9yYQAEnODTvKCeQ4qp2d3SkvWHMw63D2D7bRVdFbva56iU7XWyEe97gdytGLk8IhtLmWv6xvaFyCo0zpfZgtIe+xWwsaQX6Dfs89FcjL/E9Ji7BtrxFRub1ddA2Qhp12Hkb2/IVMoSjzIjJPkZ5CeiOaoWFw3riCfguK5EcFWXpE4bzHwtU1OJ8L4muEtgkdtVFM1xL6QniR2t+pddnbK5qbtyUW+WTKtVdOOrGSzOrvgO/Ulv5gg9688vGHj06ObjCtc07wQ86FSXkZnpd7BePYrGle+42erf5NS73dM88yebe5erX/56vTg5RkpY9EccNo05Sw1guIjRfCiq4KumiqaeZk0ErQ+KVjtWvB4EFdjivn2scD0RFCCtfx1iyz4Pw9UXu91TIKaEeSCfKldya0cyrQhKclGKy2RKSissz+p5NJ9CW/4Lv1KhuOc3sb4mxPU3anvU9rpCS2lpIXECNnLXtKxNLjzMOoq4KSmxTcZ6moeI4YWElz3HkAvoo/8AN1nFOU0v3POe04Zwkz0JBPMEelPmotyHwViqwW993xpiOrul2rGA+DvcerpW/B05lSkBwC8GvTjSm4Rlqx6o74Sco5awCEIWJcNUjxHpT3I5j0oCiXSnH39Lz8RF9SjJSd0qN2ed5+Ii+pRiF+lWP6an8L8HzNx92XybtkRqc58LAf8AefuW5dOPQ5u2hrmhzXWxwIPA71qGQQ2s6cL91V+5bh04x99yzn/xrvrXze3f1Ufj+T0bH7L+TT8n83sTZcSNpYHyXWx7Xl26V2uwOfVk8FamOXLjPnBkcr2RVRa3gdBVUT+enNUSadDuWYwxe7vh27RXaxV8tDXRnUPYdA7ucOxeRhxkpweGjrT4YfFEgZw5PYhy9qDVtDrnYZD5FZE0l0Xc8cde9Rod+8HUdqt/lFnzYcZ0keH8YRU9uu8g6twlGtNVejXgStYzs6PT5JpsQ4AZGzaBfUWpx8k89Yl9FYbc14p3PB9fR/J59xY48VLl0Kyk+jTvW/ZOZY3/ADHuwZRsdR2eFw8Jr3t8n9Fg5nvW3ZM5BXjE9ey5Ywpp7XZYn7qY7pqkg8O5qnHHWP7Dl5aG4awrR05rombEcEQ9qpx2u05q+0dsqjmnQ4y6+i/0i2snPxVOCMhI/BeTWE4rTaqWLwmQeTA3Tbal/wAJ57FG94vlxxDWeHXKXaf/ALuJvuIh2ALRJ7hV3S5SXG41L6mrmOr5XnX5B3LZ7BHPWzQ0dLE6WeQhrGtGpXyU3KTcpPLZ68cLguR3I+K+uu5fe60Etsuc9vqC0ywEB+nDVdZULmwZen/XCh+VT18JQLl5+OVB8qns81WXMEAdOn+pF/8AbWfUVRFo1aD3BXt6dP8AUmf7cz6iqIhwDP8ACF12/wBBzV+ZK+Dej9mNi7DlJiCyw0RoasExmR4B0G5Zd3RYzb03Q235wK0nRWJORWHSNN7Xn3YHvlKejjyHzgWUq0kzVUo4KBO6LWbw4UtuP/2t/im3osZun/hrcP8A7W/xV/A13wf/ANr6sj1bqSQfSq76RO7iUDj6LObTXgmG27v/AHGq03RUwRiDL/KiLDuJIYoq5lVLLsxvDhsuOo3hSwYmjmf1pNGnBVlUclxJjBR5EB9OwDxDVOvHwuLT1lRKo06w6BXo6eb9nIuRvbWR/aVGGtM1UyJpG1I9rG68NSQB+0rooPwmNbmiTejjm1XZX4vD5y+fD9wkDblBr+D1IHXDvC9E7bcKS4UNPW0UzJ6aojEkUjTqHNI1C8qMWWS6YaxBV2G9UjqW4Uha2eFw4ajUekaFWT6FOcEtDXMy3xJUl9HOdbRUSO3xO5xE9/JUrQT4otSl6MudqmEmcCOY4rr3CspqOkmqqqZkMELDJLI46BrQNSVzG5rmaeOLTgDBtdia7ygQ0zD1UIPlTycmN79V5s49xRdca4rrcTXqQvrKtxLWk7omcmDsGi3vpM5uSZmYzMVvc9mHLY4x0bCfw7gd8pCjuksl1q8NVmJIaN7rVR1LaWep962Vw1DfTou2jBRWXzOarJt4Rh5WjwWo3cIXL0+yOOuT+FD/AONi+yvMab/ZKn4hy9N8jT957Cn92xfZVLhci1DkyPunIfvCV3x7PtKgbtXu3DkPqV++nKNuba249n2lQxrANf0f3K1usxK1nhkrZZ9HnHGPMIUmKLNWW+Kiq9erbMPK3HQra2dEjMnTfdbQP8KsF0NmOHR4sOjd7jIR5XHyypj0fp7n/wDaylVknhGipxwUZd0RsyT/AM2s/qIb0RMxw0n2Ys+oG4bHFXk2Hdn/AO0SMkMZAbv1Hv1XfSJ3cTy0xpha84PxLVYdxBSeDV9Md4B1bI34Te5bl0YL5VWDPbD81NK5ra53gk4B3Pa481sPTfulFW53Mjo6mKd1LbxFMWHXZfr7kntWi9H6OWrzwwlFC0ucK1jyAOAB3ldOpShxMVHTPgenGvuxyGqp/wDyhL9LthBvYZD+xW+10L/lVP8A+UJaTesI9/WfUuWl9SOifIqYSXOAA3ucGj0k6KcKDotZq1dJT1UQtoinjEjdp41AI1GqhSOL2yP41n2gvVjCcDRh2zjeNKKPmfghbVZOBjTipIo8Oihmt/1bUP8AEEfzT81Sd81q9YK+r9gHTU/rSbsa8T+tZ7+RpuolALz0Xc1bba568QUFZ1LS8wwuAe4DjooWdHLBM+ORjo5GOLXsI0LCOIK9aPa+vZo466HdqvMLNtjWZrYzYGhul4eABy4rWjNzeGZVYKKyiaegBiKspsd3zCgeTRVdGa3Y5NkaQNR8hV2IiTG0njoqHdA4ffyrf7ll+21Xwi/BN9Cxq/UbU+Rz13I4DVLuXGQ7I3kAcSTyHNZFyNekdmLTZc5aV1163S51gNLbYwN7piDv9AG/VeblRNJNJJUVDy6WR5klcT75x1P7VL/S3zEbjvNCemt8/W2eza01OWnVkj+bx8u5a3kDgeTMHNC2WR0RfRwvFVW9hiad7T6V10koRyzmm9bwjR3wTQSBk8L4n6B2xI3Q6HgdOwqz/QWzIkt12my3usw8Bqi6otbncWy8Xt17OxHTrwDHbKu2Y8tdI2OhfGyhq+rboI9kaRbu9Vps1zrrLeKS7W6V0VZRTNmjcDp7k6kfLwV3ipAhZpyPWRupG/iuS0zJ/HVvzCwFbsUUZa188YbUwg74ZgPKaVuPJcLWOB1LiGq+VTBFUQSU88TZYpGlj2PGoc08QV9EwnIFN+kZkzJg+pkxNhqCWawTPJqIGjaNG48wB7z6lCGoLeTmkfrXppUQxTwvhmjbJHI0tex41DgeIIVPukdkrUYWqqjFWFaV01ilJfVUrBq6kceLgPgL7DZG2N4lRrPj6Pr8+5415ZaczhyOh0ec5qjBVXBh3EdTJNhuV4ZHI86mhJ5j8zuVzKKrgqaaKop5mTQzMD4pWHVr2ngQV5l7nN5Oa4fIVNGQWdFXgkGwYiE1bh5zS6FzTrLTO+C380q219j77zaK8Xquv+/kWd5o8E+RbPHOK7NhDD1TfL3UtgpYGkga+VK7k1o5kqjObGYV3zIvwuVyD4KGFx8BoSfJhHae13evrnBmHesw8RvrK5xgtlO4toaJp8ljfhn84rTqOCeqrIKSmhfPU1D9iGJg1c93YFvsrZkbOO8qfX+P/epld3TrPTHl+R0tPUVVTHTUlPJU1MzgyKGMaukceQVw+jvkzDg6nixDiKCKfEcrNWNI1bRtPIfnd6XR2yZiwdTtxFiJjKjEE7dWMI1bRtPIfnd6m5o05rytsbY3uaNF+H1fX/PiddnZ6PHPmAAHp596foQhfNnphxCEuaEAxwSPL0p6JHl6UBRXpVDTPS8a86eH6lGIClHpXf153bT/ALaH6lFoX6XYfpqfwvwfMXH3ZfJvOQJ+/Thf+1fuW39OP+tyz/3a761qGQI1zpwx/av3LbunIfvu2f8Au131r5vbv6qPx/J6dj9l/JBjd6+rTo06HXTj3L4E+1v/AESrIYNyVtOY2R9ou1uk9jMRQl4ZUDeyo0968cvSvGlJR5nUlnkVzlc17Nh4Jaew6EHtB5Kb8mOkHecIxU1nxS2W72VhDI5xvnpx+8elRLjDC9/wjeXWjEVukoqoHRhI8iUdrXc1jomkag7u0KGlJcQm4suLmRnOyspnUGDJH7M0Q27gW6aAjgwdqg94dtue975HvcXPe86ucTxJK52loFnomgADq+A4LMYbw7c8TXdlrtEBlmd+Efp5MQ7SVkkomr4nXw3brjerxBa7XTunqpnAAAbmD4TuwK02W+CKTCVC0vLai5SACao03Dub3LllvgW04MtjYKOMS1jx/SKtw8p55gdgW3aaAAdqylLJeKwQJmDuxrdfjf3LBNWezEH+u90+NH1LAg6IiTYMvR/rlQf4lPenFQJl6dcZUHyqe+1VYRX/AKdX9SZ/trfqKoW4+SN/IK+fTrP3k/8A+1v1FUNLSW/IF10PpOetzR3qLEOI6OnZTUV+uNNTs12IopSGt17Bqu7T4pxcTuxTdvn3fxVksi+jjgLG2WlqxLd6iubWVe31gjcQ3cdFv8fRJytaPwlxJ+MKhVIJ8S2iTXBlOBivGDWvP3VXfXYd/vj2elXy6ItbXXDIyy1VxrZqyoftbUsrtXHfzK1kdEzLDQgPuG8EfhSpey0wZacB4SpsN2V0rqOnJLDIdXb1SrUjJcC1OMo8zZHFcCVzeuI4LnNSvXT0BORzz2Vkf2lRTUiojIJBE0X2gr49O9uuRFQeyri+0qIP0FTH8fF9oLpprwGNT6kXS6XOTs2K8M0+PMPx9ZerdRMNZCB5VVAGjXTtePqVM6V8kMsVRBLJTzxPD45G7nRPHP0hertC1r7dTagEdQwaHgRsjiqM9MDKOTBWInYwsUBOHrnJ7dG1u6kmPL0OO9TQqJPSyKsG+KLDdFrN0Zi4W9i7rLHHiS2Mayobr/tDNPJkHae1Rd01s42hs2WmGagmR4DrvVxu3BvKJpHPtVZcGYmvmEsQxX7Dtc6juEMbo2SAagtcNDqOa6FxnqLhX1FdUvfUVVVMZJHcXSSOPD5Srbjxaiu+4Y9TlhKwXXFGI7fh2x0xnr62URQsA3MHNzuwaaq2PSOwLbsuOihSYZtuh6u7QPqpRxmlIO04/V8i2zofZPvwVhz7q8QUrWYgujNYo3DyqSE8G/pJ9PAaZEu/veD96zc8zSNFHESiszv6LUa/9By9Osi9+T2FP7ui+yvMCR39GnH/ALJXp/kX/U9hT+7ovsqa7zgiiuZH3Tk/qFrfj2faVCHy6fqH1K+/TkH3hK74+P7SoFM07R9H7leg2olKyy0Zu14wxXa6JlFasR3CipI/cQxP0a30LuDH+PXfljdvnFYDo8dHzAOPsp7bie+PrRX1LniTq3kNGjtApGj6JWVXwrif/tKh1Y54k7t45lP2Y6x9xGMbt84Vylx3j98RjdjG6lpGhG2rjN6JuVoG72Q+dK5nopZWCN2rK/hx647lO+p9CN3PqUMMb6itAmqD1k8nlzTPJ3n3ziVdXomZL2jCtY7GtRiK14iuD4erpjQSdZFTNcNTqfhKuXSMyxGV+OI7PBWOrLbWwmoo3vGjmt102SuPRpx3dMBZpWltLO/2MuVQ2krKYnyHB500gdO1YcODbDhxple9v3UzBpe4u3bXDUqScMYFsdhuk10p21U9a9hjZNVTmV0TPgsJ4LszCFiFNSU/gZ6ulq3VkI2vcyk6koppE4I6o6rD0dLmJVYsD6m30eInPZG6V2pfsN0YzfxPYErJYrThjBd7xJiO1zQvvjw0W9lQ5xjjd7mEHXcSN5W54gy1wre4KuGuo5i2rr/ZCYMlLdqfTTa/UFwteWeG6KC4Qk3Kqjr26SiprHSbJ00Bbr7kjtTWsEYZoVpFTZsxbR4Jh6CwSTWqeVlNFVOlNRsjyA5p5rPZeYbw3f8M+zNzi8NrJ7g59TUOqHNdFI1+5nHcAdBotkw/lzh20XOhukYraivomlkNRUVLpHNaeW/kvnWZaYanvjrkxtdTiScVEtPBVOZC+QHXaLRu48U1IJMjXHd0rrc3HlTQXCek1dDDJVNeXeDxGQAkDlqN2qy2OMP4cwnbsL3jD07qGvbWxx0krJ3PNaHN1LCCd+vH5FJ0OFLFHU3OY0DJPZRuzVsk8psg7NCsLh/LPDFovENzihq6mSl18Ejqqgyx02vNjTuB701oaWaDgjDNmxHc8wKi+U8la7r2tax07h1ILNSG792/mt6yPqKifLyibUTvmMU0sLHPOpDGu0aCeegWwWbDNptL7m+igdG65ydZVEu123aaa9y7OHLLb7BbG262xGKna9zw0u1OrjqVEp5JSwd6oEpgkEBAl2HdWTw2tN37VAuSlrzkps17xVYtrZX2V5dttlbox5971an/XcuI1B4k+lbULp0ac4KKepY4rl8FZ09TTzyG3XZ3qMs/b3VQWOgw9bIJay4XaqYx1PCNXmDXyz p2KTSeSxUtht0uJ4cRSRF1whp3U8bydzWO4gBc8Xh5LtZREeIaS81+ZeHbFmHdIzZpJPCKCGBvtVTUxkFoldyIJ8kc1jLXb67FUuKLlXYbpL1cPD6ik8JkrnROpWMHtbdgbgGnmOKmjFmGrTiahgpLrAZGU9THUwuY7ZcyRh1aQVhcQ5d4fvF4lukgraSoqBs1JpKl0TZx+cBxJ7VoporpZH9Ph2qud1wLaMYVUdzqKeg1nkglIbPx01I4gbv1Lrxy2jCOLccWqVtQzDzqUSOo45HH2zQbmni3XuUwUuGrRTVVtqIKYsfboOopvK9yzs718K3BtgrK251lTR9ZLcoepqSXcW93Ye9N51J0kVWeKSz5iYRbR4epcPMrYySyOsdK+eM/Cae7mvtl7hnDN4smMLlcj4TUx3Csa95ncPB2t100AO7Tjr3LfLJlvh223CkuQFbU1tFuppqipc8xt5Aa8l07hlPhOqqaieOKvpfC5XS1bYKpzGzlx3hwG4gqda5EYZpmBrnW3LxfzVNZNMGVtTBDKXEdfC1nkuPb8q+dzmdBY4HxyvYTjTZJY8t11bwOnEdylxmGLNHPaZIqNsXsQ0toms3NjBGh3ehdeowdYailbTyUhMba7w8Da/33wk3iyNLNAwjabAM9MX1T6Bomt/Uztl612rD1epds81qmKJLZcMM1OJbPhyKkpJro0MvE9c5sxft6Fwb6eA4KZ7ngqy1mLqXFBjmiuUADXPjkLWzDTTSRo918qw8+VGEp5qoTwVj6Wom6/wQ1LupjfrqXNZwG9NazkaWanhmkpsZZoXeLFTnVc9utlOKW3PeWhjXgh02g4l37F9MT223WLGGX9ssk8zqOK51LmxtqHODXCIkMO/eAeRW7Yny/sF9kpqmZtTTVsEIp21VLMYpHRgabLnDeQuzQ4Hw7Rts4ipJNbRIZaRz5S5weRoXOPM6KNaGlkd4Qw9hvEmC73fMQ1bqmvqJpTXVbqhzHUZbro0DXyQNAsBhV8mLbhl83EM09TG6kqv94WeEhj9ljnacRpp6VKl9yywvdLpNWyQ1UDapwfVwQVBjhqD2uYNxWcfheym62+4tomsnt0JhpdjyWxsPIBNaRGlmgZc08VmzqxhYba58FsZT00zaXbLmse4alzdeGqldu9oKxFFhu1UmKa/EkMDm3GujZHPJtbnNaNGjRZgDQaBUlLLLpYBCfJCqSIIQnyQCRojejVAP9SAknxQBxS5oHenzQAgJao13oATCN6NUAt6OATS+VANHJLemgBIcU+SCgEe5CEaIB8EgmhAHAo3I4pdyAEJlCAEFG9CAOSXPcmhALRBTKSAPkRpvTCEAk+SSaAWiBonySKADogBG9CAfaEkaoKAfFCWiY4IAKR9CaAgEmjmhAGiNyEIBDimEd6CUAFHLchCAEbkIQCKaCUIASKaEAjuRzTKEAkEI1TQCQmhAJGm9NCAWiCnvQgFojgmhAJPckmEAuHNCY10QgP/Z" alt="Membrax">
+  <span class="topbar-title">Gestión operacional</span>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="goPage('inv')">📦 Inventario</button>
+  <button class="nav-btn" onclick="goPage('proyectos')">🏗️ Proyectos</button>
+  <button class="nav-btn" onclick="goPage('cotizador')">🧮 Cotizador</button>
+</div>
+
+<!-- INVENTARIO -->
+<div id="page-inv" class="page active">
+  <div class="stats">
+    <div class="stat"><div class="stat-l">Stock actual</div><div class="stat-v" id="st-stock">0</div><div class="stat-s">tinetas disponibles</div></div>
+    <div class="stat"><div class="stat-l">Total comprado</div><div class="stat-v" id="st-in">0</div><div class="stat-s">históricas</div></div>
+    <div class="stat"><div class="stat-l">Total utilizado</div><div class="stat-v" id="st-out">0</div><div class="stat-s">en obra / ventas</div></div>
+  </div>
+  <div id="al-stock" class="alert aw" style="display:none">⚠️ <strong>Stock bajo.</strong> Considera reposición pronto.</div>
+  <div class="card">
+    <div class="itabs">
+      <button class="itab active" onclick="switchItab('compra',this)">➕ Registrar compra</button>
+      <button class="itab" onclick="switchItab('retiro',this)">📤 Registrar retiro / uso</button>
+    </div>
+    <div id="isec-compra" class="isec active">
+      <div class="fr3">
+        <div class="fg"><label>Fecha</label><input type="date" id="in-fecha"></div>
+        <div class="fg"><label>Tinetas</label><input type="number" id="in-cant" min="1" placeholder="ej: 10"></div>
+        <div class="fg"><label>Precio unitario ($)</label><input type="number" id="in-precio" placeholder="69500"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label>Proveedor</label><input type="text" id="in-prov" placeholder="Isolcork Chile"></div>
+        <div class="fg"><label>N° factura / OC</label><input type="text" id="in-factura" placeholder="Opcional"></div>
+      </div>
+      <div class="fg"><label>Notas</label><textarea id="in-nota" placeholder="Opcional..."></textarea></div>
+      <div class="btn-row"><button class="btn btn-p" onclick="registrarEntrada()">✓ Registrar compra</button></div>
+      <div class="msg" id="msg-in"></div>
+    </div>
+    <div id="isec-retiro" class="isec">
+      <div class="fr4">
+        <div class="fg"><label>Fecha</label><input type="date" id="out-fecha"></div>
+        <div class="fg"><label>Tinetas</label><input type="number" id="out-cant" min="1" placeholder="ej: 4"></div>
+        <div class="fg"><label>Tipo</label><select id="out-tipo"><option value="obra">Uso en obra</option><option value="venta">Venta tinetas</option></select></div>
+        <div class="fg"><label>m²</label><input type="number" id="out-m2" placeholder="Opcional"></div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label>Responsable / Aplicador / Cliente</label><input type="text" id="out-resp" placeholder="Nombre o empresa"></div>
+        <div class="fg"><label>Trabajo / Proyecto</label><input type="text" id="out-trabajo" placeholder="ej: Correos de Chile..."></div>
+      </div>
+      <div class="fg"><label>Notas</label><input type="text" id="out-nota" placeholder="Opcional"></div>
+      <div class="btn-row"><button class="btn btn-p" onclick="registrarSalida()">✓ Registrar retiro</button></div>
+      <div class="msg" id="msg-out"></div>
+    </div>
+  </div>
+  <div class="card-title" style="padding:0 0 8px;font-size:12px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;">Historial de movimientos</div>
+  <div class="fbox">
+    <div class="fr4" style="margin-bottom:10px;">
+      <div><div class="fl">Mes</div><select id="f-mes" onchange="renderMov()"><option value="">Todos</option></select></div>
+      <div><div class="fl">Tipo</div><select id="f-tipo" onchange="renderMov()"><option value="">Todos</option><option value="entrada">Compras</option><option value="obra">Uso obra</option><option value="venta">Venta tinetas</option></select></div>
+      <div><div class="fl">Responsable</div><select id="f-resp" onchange="renderMov()"><option value="">Todos</option></select></div>
+      <div><div class="fl">Trabajo</div><select id="f-trab" onchange="renderMov()"><option value="">Todos</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;">
+      <div><div class="fl">Desde / Hasta</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="date" id="f-desde" onchange="renderMov()">
+          <input type="date" id="f-hasta" onchange="renderMov()">
+        </div>
+      </div>
+      <button class="freset" onclick="resetMov()">✕ Limpiar</button>
+    </div>
+  </div>
+  <div id="sub-bar" style="display:none;" class="sub-bar">
+    <div class="sub-i"><div class="sl">Compras filtro</div><div class="sv" id="sb-in">0</div><div class="ss">tinetas</div></div>
+    <div class="sub-i"><div class="sl">Usos filtro</div><div class="sv" id="sb-out">0</div><div class="ss">tinetas</div></div>
+    <div class="sub-i"><div class="sl">m² filtro</div><div class="sv" id="sb-m2">0</div><div class="ss">registrados</div></div>
+  </div>
+  <div class="ri" id="mov-info"></div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <div class="tw"><table>
+      <thead><tr><th>Fecha</th><th>Tipo</th><th>Tinetas</th><th>Responsable / Proveedor</th><th>Trabajo</th><th>m²</th><th>Nota</th><th></th></tr></thead>
+      <tbody id="t-mov"><tr><td colspan="8" class="empty">Sin movimientos aún.</td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- PROYECTOS -->
+<div id="page-proyectos" class="page">
+  <div class="stats">
+    <div class="stat"><div class="stat-l">Activos</div><div class="stat-v" id="pr-activos">0</div><div class="stat-s">en curso</div></div>
+    <div class="stat"><div class="stat-l">Cerrados</div><div class="stat-v" id="pr-cerrados">0</div><div class="stat-s">terminados</div></div>
+    <div class="stat"><div class="stat-l">Total facturado c/IVA</div><div class="stat-v" id="pr-facturado">$0</div><div class="stat-s">proyectos cerrados</div></div>
+  </div>
+  <div id="resumen-global" style="display:none;" class="card">
+    <div class="card-title">Resumen global · proyectos cerrados</div>
+    <div class="rg-grid">
+      <div class="rg-item"><div class="rg-l">Membrana neto</div><div class="rg-v" id="rg-membrana">—</div></div>
+      <div class="rg-item"><div class="rg-l">Aplicación neto</div><div class="rg-v" id="rg-ap">—</div></div>
+      <div class="rg-item"><div class="rg-l">Costo tinetas</div><div class="rg-v" id="rg-costo">—</div></div>
+      <div class="rg-item"><div class="rg-l" style="color:#1D9E75">Margen membrana</div><div class="rg-v" style="color:#1D9E75" id="rg-margen">—</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Nuevo proyecto</div>
+    <div class="fr2">
+      <div class="fg"><label>Cliente</label><input type="text" id="pr-cliente" placeholder="ej: Correos de Chile"></div>
+      <div class="fg"><label>Nombre del trabajo</label><input type="text" id="pr-nombre" placeholder="ej: Techo norte"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label>m² totales</label><input type="number" id="pr-m2" placeholder="ej: 500"></div>
+      <div class="fg"><label>Precio membrana / m² ($)</label><input type="number" id="pr-precio" placeholder="ej: 17500"></div>
+      <div class="fg"><label>Precio aplicación / m² ($)</label><input type="number" id="pr-precio-ap" placeholder="ej: 4000"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label>Tinetas usadas</label><input type="number" id="pr-tinetas" placeholder="Se estima si no ingresas"></div>
+      <div class="fg"><label>Fecha inicio</label><input type="date" id="pr-inicio"></div>
+      <div class="fg"><label>Estado</label><select id="pr-estado"><option value="activo">En curso</option><option value="cerrado">Cerrado</option><option value="pendiente">Pendiente</option></select></div>
+    </div>
+    <div class="fg"><label>Notas</label><textarea id="pr-notas" placeholder="Observaciones..."></textarea></div>
+    <div class="btn-row"><button class="btn btn-p" onclick="registrarProyecto()">✓ Guardar proyecto</button></div>
+    <div class="msg" id="msg-pr"></div>
+  </div>
+  <div id="lista-proyectos"><div class="empty">No hay proyectos aún.</div></div>
+</div>
+
+<!-- COTIZADOR -->
+<div id="page-cotizador" class="page">
+  <div class="card">
+    <div class="card-title">Datos del cliente</div>
+    <div class="fr2">
+      <div class="fg"><label>Nombre / Empresa</label><input type="text" id="cot-cliente" placeholder="ej: Constructora XYZ"></div>
+      <div class="fg"><label>RUT</label><input type="text" id="cot-rut" placeholder="ej: 76.123.456-7"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Dirección</label><input type="text" id="cot-dir" placeholder="ej: Av. Providencia 1234"></div>
+      <div class="fg"><label>Contacto</label><input type="text" id="cot-contacto" placeholder="ej: Juan Pérez"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="card-title" style="margin-top:4px;">Detalle de la obra</div>
+    <div class="fr4">
+      <div class="fg"><label>Superficie (m²)</label><input type="number" id="cot-m2" placeholder="ej: 350" oninput="calcularCotizacion()"></div>
+      <div class="fg">
+        <label>Precio membrana / m² ($)</label>
+        <input type="number" id="cot-precio-manual" placeholder="Automático por tramo" oninput="calcularCotizacion()">
+        <span class="precio-hint" id="precio-hint">Se calcula automático según m²</span>
+      </div>
+      <div class="fg"><label>Precio aplicación / m² ($)</label><input type="number" id="cot-ap" placeholder="ej: 4000" oninput="calcularCotizacion()" value="4000"></div>
+      <div class="fg"><label>N° cotización</label><input type="text" id="cot-num"></div>
+    </div>
+    <div class="fg"><label>Notas / Condiciones</label><textarea id="cot-nota"></textarea></div>
+  </div>
+  <div id="cot-result" style="display:none;">
+    <div class="card">
+      <div id="cot-tramo" style="font-size:12px;font-weight:600;margin-bottom:14px;"></div>
+      <div class="cot-section">
+        <div class="cot-section-title">Resumen para el cliente</div>
+        <div class="cot-row"><span>Membrana impermeabilizante Membrax <span id="tag-precio"></span></span><span id="cr-pintura">—</span></div>
+        <div class="cot-row" id="cr-row-ap"><span>Aplicación <span class="tag-ap">servicio</span></span><span id="cr-ap">—</span></div>
+        <div class="cot-row total-neto" style="border-top:1px solid #f3f4f6;margin-top:4px;padding-top:8px;"><span>Subtotal neto</span><span id="cr-neto">—</span></div>
+        <div class="cot-row"><span style="color:#9ca3af">IVA (19%)</span><span id="cr-iva" style="color:#9ca3af">—</span></div>
+        <div class="cot-row total-iva"><span>Total con IVA</span><span id="cr-total-iva">—</span></div>
+      </div>
+      <div class="cot-section" style="background:#f0fdf4;border:1px solid #6ee7b7;">
+        <div class="cot-section-title" style="color:#065f46;">Margen Membrax (interno)</div>
+        <div class="cot-row"><span>Tinetas necesarias</span><span id="cr-tin">—</span></div>
+        <div class="cot-row"><span>Costo producto</span><span id="cr-cprod">—</span></div>
+        <div class="cot-row margen"><span>Margen bruto</span><span id="cr-margen">—</span></div>
+        <div class="cot-row" style="font-size:13px;color:#9ca3af"><span>Margen %</span><span id="cr-margenp">—</span></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-pdf" id="btn-pdf" onclick="generarPDF()">📄 Generar PDF</button>
+      <span class="pdf-loading" id="pdf-loading"><span class="spinner"></span> Generando PDF...</span>
+      <button class="btn btn-p" onclick="guardarCotizacion()">💾 Guardar como proyecto</button>
+    </div>
+    <div class="msg" id="msg-cot"></div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="modal-bg" class="modal-bg" style="display:none;" onclick="cerrarModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">✏️ Editar proyecto</div>
+    <div class="fr2">
+      <div class="fg"><label>Cliente</label><input type="text" id="ed-cliente"></div>
+      <div class="fg"><label>Nombre del trabajo</label><input type="text" id="ed-nombre"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label>m² totales</label><input type="number" id="ed-m2"></div>
+      <div class="fg"><label>Precio membrana / m² ($)</label><input type="number" id="ed-precio"></div>
+      <div class="fg"><label>Precio aplicación / m² ($)</label><input type="number" id="ed-precio-ap"></div>
+    </div>
+    <div class="fr3">
+      <div class="fg"><label>Tinetas usadas</label><input type="number" id="ed-tinetas"></div>
+      <div class="fg"><label>Fecha inicio</label><input type="date" id="ed-inicio"></div>
+      <div class="fg"><label>Estado</label>
+        <select id="ed-estado"><option value="activo">En curso</option><option value="cerrado">Cerrado</option><option value="pendiente">Pendiente</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Notas</label><textarea id="ed-notas"></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="guardarEdicion()">✓ Guardar cambios</button>
+      <button class="btn" onclick="cerrarModal()">Cancelar</button>
+    </div>
+    <div class="msg" id="msg-ed"></div>
+  </div>
+</div>
+
+<script>
+// ══ CONFIG ══
+const SHEET_ID = '15bBsSahLI4XryXl_jctM2LbD2PFhngZD9nkowBjuC6k';
+const API_KEY_ANTHROPIC = window.ANTHROPIC_API_KEY || '';
+
+const TRAMOS=[{hasta:200,precio:19973},{hasta:500,precio:18452},{hasta:1000,precio:16952},{hasta:2000,precio:15364},{hasta:Infinity,precio:14500}];
+const COSTO_TINETA=69500,M2_POR_TINETA=7,IVA=0.19;
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let movimientos=[],proyectos=[],editandoIdx=null,cotCache={};
+let gsToken=null;
+
+// ══ GOOGLE SHEETS AUTH ══
+async function getGSToken(){
+  if(gsToken && gsToken.exp > Date.now()) return gsToken.token;
+  try{
+    const r = await fetch('/api/gs-token');
+    const d = await r.json();
+    gsToken = {token: d.token, exp: Date.now() + 55*60*1000};
+    return d.token;
+  }catch(e){ console.error('Token error',e); return null; }
+}
+
+async function sheetRead(range){
+  const tk = await getGSToken();
+  if(!tk) return [];
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}`,{
+    headers:{Authorization:`Bearer ${tk}`}
+  });
+  const d = await r.json();
+  return d.values || [];
+}
+
+async function sheetAppend(sheet, values){
+  const tk = await getGSToken();
+  if(!tk) return;
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheet}!A1:Z1000:append?valueInputOption=USER_ENTERED`,{
+    method:'POST',
+    headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+    body: JSON.stringify({values:[values]})
+  });
+}
+
+async function sheetUpdate(range, values){
+  const tk = await getGSToken();
+  if(!tk) return;
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`,{
+    method:'PUT',
+    headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+    body: JSON.stringify({values:[values]})
+  });
+}
+
+async function sheetDelete(sheet, rowIndex){
+  const tk = await getGSToken();
+  if(!tk) return;
+  // Get sheet metadata first
+  const r = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}?fields=sheets.properties`,{
+    headers:{Authorization:`Bearer ${tk}`}
+  });
+  const d = await r.json();
+  const sheetMeta = d.sheets.find(s=>s.properties.title===sheet);
+  if(!sheetMeta) return;
+  const sheetId = sheetMeta.properties.sheetId;
+  await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`,{
+    method:'POST',
+    headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+    body:JSON.stringify({requests:[{deleteDimension:{range:{sheetId,dimension:'ROWS',startIndex:rowIndex,endIndex:rowIndex+1}}}]})
+  });
+}
+
+// ══ LOAD DATA ══
+async function loadAll(){
+  showLoading(true);
+  try{
+    // Inventario
+    const invRows = await sheetRead('Inventario!A2:K1000');
+    movimientos = invRows.filter(r=>r.length>0).map((r,i)=>({
+      _row: i+2, tipo:r[2]||'', fecha:r[1]||'', cant:parseFloat(r[3])||0,
+      precio:parseFloat(r[4])||0, proveedor:r[5]||'', factura:r[6]||'',
+      responsable:r[7]||'', trabajo:r[8]||'', m2:r[9]||'', nota:r[10]||''
+    }));
+    // Proyectos
+    const proyRows = await sheetRead('Proyectos!A2:J1000');
+    proyectos = proyRows.filter(r=>r.length>0).map((r,i)=>({
+      _row: i+2, cliente:r[1]||'', nombre:r[2]||'', m2:parseFloat(r[3])||0,
+      precio:parseFloat(r[4])||0, precioAp:parseFloat(r[5])||0,
+      tinetas:parseFloat(r[6])||0, inicio:r[7]||'', estado:r[8]||'activo', notas:r[9]||''
+    }));
+  }catch(e){ console.error('Load error',e); }
+  showLoading(false);
+  updateStats(); buildFilters(); renderMov(); renderProyectos();
+}
+
+function showLoading(on){
+  document.title = on ? '⏳ Membrax · Cargando...' : 'Membrax · Gestión';
+}
+
+// ══ HELPERS ══
+function today(){return new Date().toISOString().slice(0,10);}
+function fmt(f){if(!f)return'-';const[y,mo,d]=f.split('-');return`${d}/${mo}/${y}`;}
+function fmtN(n){return'$'+Math.round(n).toLocaleString('es-CL');}
+function fmtNraw(n){return Math.round(n).toLocaleString('es-CL');}
+function vencimiento(){const d=new Date();d.setDate(d.getDate()+10);return d.toISOString().slice(0,10);}
+function genId(){return Date.now().toString();}
+
+function showMsg(id,ok,txt){
+  const el=document.getElementById(id);
+  el.className='msg '+(ok?'ok':'err');
+  el.style.display='block';
+  el.textContent=txt;
+  if(ok)setTimeout(()=>el.style.display='none',3000);
+}
+
+function calcProy(p){
+  const m2=parseFloat(p.m2||0),ingMem=m2*parseFloat(p.precio||0),ingAp=m2*parseFloat(p.precioAp||0);
+  const neto=ingMem+ingAp,iva=Math.round(neto*IVA),totalIva=neto+iva;
+  const tin=parseFloat(p.tinetas)||Math.ceil(m2/M2_POR_TINETA),cProd=tin*COSTO_TINETA;
+  const margen=ingMem-cProd,mp=ingMem>0?Math.round(margen/ingMem*100):0;
+  return{m2,ingMem,ingAp,neto,iva,totalIva,tin,cProd,margen,mp};
+}
+
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const idx={inv:0,proyectos:1,cotizador:2}[id];
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+
+function switchItab(id,el){
+  document.querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.isec').forEach(s=>s.classList.remove('active'));
+  document.getElementById('isec-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function updateStats(){
+  const tin_in=movimientos.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.cant,0);
+  const tin_out=movimientos.filter(m=>m.tipo!=='entrada').reduce((s,m)=>s+m.cant,0);
+  document.getElementById('st-stock').textContent=tin_in-tin_out;
+  document.getElementById('st-in').textContent=tin_in;
+  document.getElementById('st-out').textContent=tin_out;
+  document.getElementById('al-stock').style.display=((tin_in-tin_out)<=5&&movimientos.length>0)?'block':'none';
+  const cerrados=proyectos.filter(p=>p.estado==='cerrado');
+  document.getElementById('pr-activos').textContent=proyectos.filter(p=>p.estado==='activo').length;
+  document.getElementById('pr-cerrados').textContent=cerrados.length;
+  let totFact=0,totMem=0,totAp=0,totCosto=0,totMg=0;
+  cerrados.forEach(p=>{const c=calcProy(p);totFact+=c.totalIva;totMem+=c.ingMem;totAp+=c.ingAp;totCosto+=c.cProd;totMg+=c.margen;});
+  document.getElementById('pr-facturado').textContent=fmtN(totFact);
+  const rg=document.getElementById('resumen-global');
+  if(cerrados.length>0){
+    rg.style.display='block';
+    document.getElementById('rg-membrana').textContent=fmtN(totMem);
+    document.getElementById('rg-ap').textContent=fmtN(totAp);
+    document.getElementById('rg-costo').textContent=fmtN(totCosto);
+    document.getElementById('rg-margen').textContent=fmtN(totMg);
+  }else rg.style.display='none';
+}
+
+// ══ INVENTARIO ══
+async function registrarEntrada(){
+  const fecha=document.getElementById('in-fecha').value||today();
+  const cant=parseInt(document.getElementById('in-cant').value);
+  const precio=parseFloat(document.getElementById('in-precio').value)||COSTO_TINETA;
+  const proveedor=document.getElementById('in-prov').value||'Isolcork Chile';
+  const factura=document.getElementById('in-factura').value;
+  const nota=document.getElementById('in-nota').value;
+  if(!cant||cant<1){showMsg('msg-in',false,'Ingresa la cantidad de tinetas.');return;}
+  const id=genId();
+  await sheetAppend('Inventario',[id,fecha,'entrada',cant,precio,proveedor,factura,'','','',nota]);
+  movimientos.push({_row:movimientos.length+2,tipo:'entrada',fecha,cant,precio,proveedor,factura,responsable:'',trabajo:'',m2:'',nota});
+  updateStats();buildFilters();renderMov();
+  ['in-cant','in-precio','in-factura','in-nota'].forEach(id=>document.getElementById(id).value='');
+  showMsg('msg-in',true,`✓ ${cant} tineta(s) ingresadas al stock.`);
+}
+
+async function registrarSalida(){
+  const fecha=document.getElementById('out-fecha').value||today();
+  const cant=parseInt(document.getElementById('out-cant').value);
+  const tipo=document.getElementById('out-tipo').value;
+  const responsable=document.getElementById('out-resp').value;
+  const trabajo=document.getElementById('out-trabajo').value;
+  const m2=document.getElementById('out-m2').value;
+  const nota=document.getElementById('out-nota').value;
+  if(!cant||cant<1){showMsg('msg-out',false,'Ingresa la cantidad.');return;}
+  if(!responsable){showMsg('msg-out',false,'Ingresa el responsable.');return;}
+  const stock=movimientos.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.cant,0)-movimientos.filter(m=>m.tipo!=='entrada').reduce((s,m)=>s+m.cant,0);
+  if(cant>stock){showMsg('msg-out',false,`Stock insuficiente. Hay ${stock} tineta(s).`);return;}
+  const id=genId();
+  await sheetAppend('Inventario',[id,fecha,tipo,cant,'','',responsable,trabajo,m2,nota]);
+  movimientos.push({_row:movimientos.length+2,tipo,fecha,cant,precio:0,proveedor:'',factura:'',responsable,trabajo,m2,nota});
+  updateStats();buildFilters();renderMov();
+  ['out-cant','out-resp','out-trabajo','out-m2','out-nota'].forEach(id=>document.getElementById(id).value='');
+  showMsg('msg-out',true,`✓ ${cant} tineta(s) registradas.`);
+}
+
+async function eliminarMov(rowIndex,localIdx){
+  if(!window.confirm('¿Eliminar este movimiento?'))return;
+  await sheetDelete('Inventario',rowIndex-1);
+  movimientos.splice(localIdx,1);
+  // Recalculate rows
+  movimientos.forEach((m,i)=>m._row=i+2);
+  updateStats();buildFilters();renderMov();
+}
+
+// ══ PROYECTOS ══
+async function registrarProyecto(){
+  const cliente=document.getElementById('pr-cliente').value;
+  const nombre=document.getElementById('pr-nombre').value;
+  const m2=parseFloat(document.getElementById('pr-m2').value)||0;
+  const precio=parseFloat(document.getElementById('pr-precio').value)||0;
+  const precioAp=parseFloat(document.getElementById('pr-precio-ap').value)||0;
+  const tinetas=parseFloat(document.getElementById('pr-tinetas').value)||0;
+  const inicio=document.getElementById('pr-inicio').value||today();
+  const estado=document.getElementById('pr-estado').value;
+  const notas=document.getElementById('pr-notas').value;
+  if(!cliente){showMsg('msg-pr',false,'Ingresa el cliente.');return;}
+  if(!m2||!precio){showMsg('msg-pr',false,'Ingresa m² y precio membrana.');return;}
+  const id=genId();
+  await sheetAppend('Proyectos',[id,cliente,nombre,m2,precio,precioAp,tinetas,inicio,estado,notas]);
+  proyectos.push({_row:proyectos.length+2,cliente,nombre,m2,precio,precioAp,tinetas,inicio,estado,notas});
+  updateStats();renderProyectos();
+  ['pr-cliente','pr-nombre','pr-m2','pr-precio','pr-precio-ap','pr-tinetas','pr-notas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pr-estado').value='activo';
+  showMsg('msg-pr',true,`✓ Proyecto "${cliente}" guardado.`);
+}
+
+async function eliminarProyecto(rowIndex,localIdx){
+  if(!window.confirm('¿Eliminar este proyecto?'))return;
+  await sheetDelete('Proyectos',rowIndex-1);
+  proyectos.splice(localIdx,1);
+  proyectos.forEach((p,i)=>p._row=i+2);
+  updateStats();renderProyectos();
+}
+
+function abrirEdicion(idx){
+  const p=proyectos[idx];editandoIdx=idx;
+  document.getElementById('ed-cliente').value=p.cliente||'';
+  document.getElementById('ed-nombre').value=p.nombre||'';
+  document.getElementById('ed-m2').value=p.m2||'';
+  document.getElementById('ed-precio').value=p.precio||'';
+  document.getElementById('ed-precio-ap').value=p.precioAp||'';
+  document.getElementById('ed-tinetas').value=p.tinetas||'';
+  document.getElementById('ed-inicio').value=p.inicio||today();
+  document.getElementById('ed-estado').value=p.estado||'activo';
+  document.getElementById('ed-notas').value=p.notas||'';
+  document.getElementById('msg-ed').style.display='none';
+  document.getElementById('modal-bg').style.display='flex';
+}
+
+function cerrarModal(e){
+  if(e&&e.target!==document.getElementById('modal-bg'))return;
+  document.getElementById('modal-bg').style.display='none';editandoIdx=null;
+}
+
+async function guardarEdicion(){
+  if(editandoIdx===null)return;
+  const p=proyectos[editandoIdx];
+  const cliente=document.getElementById('ed-cliente').value;
+  const m2=parseFloat(document.getElementById('ed-m2').value)||0;
+  const precio=parseFloat(document.getElementById('ed-precio').value)||0;
+  if(!cliente){showMsg('msg-ed',false,'Ingresa el cliente.');return;}
+  if(!m2||!precio){showMsg('msg-ed',false,'Ingresa m² y precio.');return;}
+  const updated={...p,cliente,nombre:document.getElementById('ed-nombre').value,m2,precio,
+    precioAp:parseFloat(document.getElementById('ed-precio-ap').value)||0,
+    tinetas:parseFloat(document.getElementById('ed-tinetas').value)||0,
+    inicio:document.getElementById('ed-inicio').value||today(),
+    estado:document.getElementById('ed-estado').value,
+    notas:document.getElementById('ed-notas').value};
+  await sheetUpdate(`Proyectos!A${p._row}:J${p._row}`,[p._row-1,updated.cliente,updated.nombre,updated.m2,updated.precio,updated.precioAp,updated.tinetas,updated.inicio,updated.estado,updated.notas]);
+  proyectos[editandoIdx]=updated;
+  updateStats();renderProyectos();
+  document.getElementById('modal-bg').style.display='none';editandoIdx=null;
+}
+
+async function cambiarEstado(localIdx,val){
+  const p=proyectos[localIdx];
+  p.estado=val;
+  await sheetUpdate(`Proyectos!I${p._row}`,[val]);
+  updateStats();renderProyectos();
+}
+
+function renderProyectos(){
+  const cont=document.getElementById('lista-proyectos');
+  if(!proyectos.length){cont.innerHTML='<div class="empty">No hay proyectos aún.</div>';return;}
+  const badges={activo:'b-open',cerrado:'b-done',pendiente:'b-pend'};
+  cont.innerHTML=[...proyectos].map((p,idx)=>{
+    const {m2,ingMem,ingAp,neto,iva,totalIva,tin,cProd,margen,mp}=calcProy(p);
+    const tieneAp=ingAp>0;
+    return`<div class="proy-card">
+      <div class="proy-head">
+        <div>
+          <div class="proy-nombre">${p.cliente}${p.nombre?` · <span style="font-weight:400;font-size:13px;color:#6b7280">${p.nombre}</span>`:''}</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px">${fmt(p.inicio)} · ${m2} m²</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+          <select class="badge ${badges[p.estado]}" style="border:none;background:none;font-size:11px;font-weight:600;cursor:pointer;padding:3px 8px;" onchange="cambiarEstado(${idx},this.value)">
+            <option value="activo" ${p.estado==='activo'?'selected':''}>En curso</option>
+            <option value="cerrado" ${p.estado==='cerrado'?'selected':''}>Cerrado</option>
+            <option value="pendiente" ${p.estado==='pendiente'?'selected':''}>Pendiente</option>
+          </select>
+          <button class="btn btn-e" onclick="abrirEdicion(${idx})">✏️ Editar</button>
+          <button class="btn btn-d" onclick="eliminarProyecto(${p._row},${idx})">🗑 Eliminar</button>
+        </div>
+      </div>
+      <div class="proy-resumen">
+        <div class="pr-col">
+          <div class="pr-col-title">Facturación cliente</div>
+          <div class="pr-row"><span class="pr-lbl">Membrana</span><span>${fmtN(ingMem)}</span></div>
+          ${tieneAp?`<div class="pr-row"><span class="pr-lbl">Aplicación</span><span>${fmtN(ingAp)}</span></div>`:''}
+          <div class="pr-row"><span class="pr-lbl">Subtotal neto</span><span>${fmtN(neto)}</span></div>
+          <div class="pr-row"><span class="pr-lbl">IVA (19%)</span><span>${fmtN(iva)}</span></div>
+          <div class="pr-row azul"><span>Total c/IVA</span><span>${fmtN(totalIva)}</span></div>
+        </div>
+        <div class="pr-col">
+          <div class="pr-col-title">Resultado Membrax</div>
+          <div class="pr-row"><span class="pr-lbl">Neto membrana</span><span>${fmtN(ingMem)}</span></div>
+          <div class="pr-row"><span class="pr-lbl">Tinetas (${tin})</span><span>${fmtN(cProd)}</span></div>
+          <div class="pr-row verde"><span>Margen bruto</span><span>${fmtN(margen)}</span></div>
+          <div class="pr-row verde"><span>Margen %</span><span>${mp}%</span></div>
+        </div>
+      </div>
+      ${p.notas?`<div style="font-size:12px;color:#9ca3af">${p.notas}</div>`:''}
+    </div>`;
+  }).reverse().join('');
+}
+
+// ══ COTIZADOR ══
+function getPrecioTramo(m2){for(const t of TRAMOS){if(m2<=t.hasta)return t;}return TRAMOS[TRAMOS.length-1];}
+
+function calcularCotizacion(){
+  const m2=parseFloat(document.getElementById('cot-m2').value)||0;
+  const precioManual=parseFloat(document.getElementById('cot-precio-manual').value)||0;
+  const ap=parseFloat(document.getElementById('cot-ap').value)||0;
+  const res=document.getElementById('cot-result');
+  if(!m2||m2<=0){res.style.display='none';return;}
+  res.style.display='block';
+  const tramo=getPrecioTramo(m2);
+  const esCustom=precioManual>0&&precioManual!==tramo.precio;
+  const precioUsado=precioManual>0?precioManual:tramo.precio;
+  const tramoLabel=tramo.hasta===Infinity?'sobre 2.000 m²':`hasta ${tramo.hasta} m²`;
+  const hint=document.getElementById('precio-hint');
+  if(esCustom){hint.textContent=`Precio personalizado (tramo: $${tramo.precio.toLocaleString('es-CL')})`;hint.className='precio-hint custom';}
+  else{hint.textContent=`Automático: tramo ${tramoLabel}`;hint.className='precio-hint';}
+  document.getElementById('tag-precio').innerHTML=esCustom?'<span class="tag-custom">precio negociado</span>':'<span class="tag-prod">precio tramo</span>';
+  const tramoEl=document.getElementById('cot-tramo');
+  if(esCustom){tramoEl.style.color='#92400e';tramoEl.textContent=`Precio negociado: $${precioUsado.toLocaleString('es-CL')} / m² · Tramo estándar: $${tramo.precio.toLocaleString('es-CL')} / m²`;}
+  else{tramoEl.style.color='#1D9E75';tramoEl.textContent=`Tramo: ${tramo.hasta===Infinity?'Sobre 2.000 m²':'Hasta '+tramo.hasta+' m²'} · $${precioUsado.toLocaleString('es-CL')} / m² (neto)`;}
+  const ingP=m2*precioUsado,ingAp=m2*ap,neto=ingP+ingAp,iva=Math.round(neto*IVA),totalIva=neto+iva;
+  const tin=Math.ceil(m2/M2_POR_TINETA),cP=tin*COSTO_TINETA,mg=ingP-cP,mp=ingP>0?Math.round(mg/ingP*100):0;
+  cotCache={m2,tramo,precioUsado,esCustom,ingP,ingAp,neto,iva,totalIva,tin,cP,mg,mp,ap};
+  document.getElementById('cr-pintura').textContent=fmtN(ingP);
+  document.getElementById('cr-row-ap').style.display=ingAp>0?'flex':'none';
+  document.getElementById('cr-ap').textContent=fmtN(ingAp);
+  document.getElementById('cr-neto').textContent=fmtN(neto);
+  document.getElementById('cr-iva').textContent=fmtN(iva);
+  document.getElementById('cr-total-iva').textContent=fmtN(totalIva);
+  document.getElementById('cr-tin').textContent=`${tin} tinetas`;
+  document.getElementById('cr-cprod').textContent=fmtN(cP);
+  document.getElementById('cr-margen').textContent=fmtN(mg);
+  document.getElementById('cr-margenp').textContent=`${mp}%`;
+}
+
+async function guardarCotizacion(){
+  const m2=parseFloat(document.getElementById('cot-m2').value)||0;
+  const ap=parseFloat(document.getElementById('cot-ap').value)||0;
+  const cliente=document.getElementById('cot-cliente').value||'Sin nombre';
+  if(!m2){showMsg('msg-cot',false,'Ingresa los m² primero.');return;}
+  const id=genId();
+  await sheetAppend('Proyectos',[id,cliente,'Cotización guardada',m2,cotCache.precioUsado,ap,cotCache.tin,today(),'pendiente','Generado desde cotizador']);
+  proyectos.push({_row:proyectos.length+2,cliente,nombre:'Cotización guardada',m2,precio:cotCache.precioUsado,precioAp:ap,tinetas:cotCache.tin,inicio:today(),estado:'pendiente',notas:'Generado desde cotizador'});
+  updateStats();renderProyectos();
+  showMsg('msg-cot',true,'✓ Guardado como proyecto pendiente.');
+  setTimeout(()=>goPage('proyectos'),1500);
+}
+
+async function generarPDF(){
+  const m2=parseFloat(document.getElementById('cot-m2').value)||0;
+  if(!m2){showMsg('msg-cot',false,'Ingresa los m² primero.');return;}
+  const cliente=document.getElementById('cot-cliente').value||'—';
+  const rut=document.getElementById('cot-rut').value||'';
+  const dir=document.getElementById('cot-dir').value||'';
+  const contacto=document.getElementById('cot-contacto').value||'';
+  const num=document.getElementById('cot-num').value||'COT-'+today().replace(/-/g,'').slice(2);
+  const nota=document.getElementById('cot-nota').value||'';
+  const {ingP,ingAp,neto,iva,totalIva,tin,tramo,ap,precioUsado}=cotCache;
+  const btn=document.getElementById('btn-pdf');
+  const loading=document.getElementById('pdf-loading');
+  btn.style.display='none';loading.style.display='flex';
+  try{
+    const apiKey = window.ANTHROPIC_API_KEY;
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:3000,
+        system:'Eres un ejecutor de código Python. Ejecuta el código que te den y responde ÚNICAMENTE con el string base64 resultante, sin explicaciones, sin markdown.',
+        messages:[{role:'user',content:`Ejecuta este código Python y devuelve SOLO el string base64:\n\nfrom reportlab.lib.pagesizes import A4\nfrom reportlab.lib import colors\nfrom reportlab.lib.units import cm\nfrom reportlab.platypus import SimpleDocTemplate,Paragraph,Spacer,Table,TableStyle,HRFlowable,Image\nfrom reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle\nfrom reportlab.lib.enums import TA_RIGHT,TA_CENTER\nimport io,base64\nAZUL=colors.HexColor('#1B3A6B')\nAZUL_CLR=colors.HexColor('#E8EEF7')\nGRIS=colors.HexColor('#6B7280')\nGRIS_CLR=colors.HexColor('#F9FAFB')\nBORDE=colors.HexColor('#E5E7EB')\nNEGRO=colors.HexColor('#111827')\nVERDE=colors.HexColor('#1D9E75')\nlogo_hd='/home/claude/logo_hd.png'\nbuf=io.BytesIO()\ndoc=SimpleDocTemplate(buf,pagesize=A4,leftMargin=1.8*cm,rightMargin=1.8*cm,topMargin=1.8*cm,bottomMargin=2*cm)\nstyles=getSampleStyleSheet()\nstory=[]\nlogo_img=Image(logo_hd,width=6*cm,height=1.92*cm,kind='proportional')\ncs=ParagraphStyle('cs',fontSize=8,textColor=colors.HexColor('#B8CCEE'),alignment=1,leading=13)\nht=Table([[logo_img,[Paragraph('info@membrax.cl',cs),Spacer(1,3),Paragraph('www.membrax.cl',cs)]]],colWidths=[10*cm,7.4*cm])\nht.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),AZUL),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('ALIGN',(1,0),(1,0),'RIGHT'),('TOPPADDING',(0,0),(-1,-1),16),('BOTTOMPADDING',(0,0),(-1,-1),16),('LEFTPADDING',(0,0),(0,0),18),('RIGHTPADDING',(1,0),(1,0),18)]))\nstory.append(ht)\nstory.append(Spacer(1,0.8*cm))\nstory.append(Paragraph('COTIZACIÓN',ParagraphStyle('titulo',fontSize=26,fontName='Helvetica-Bold',textColor=AZUL,leading=30,spaceAfter=4)))\nstory.append(Paragraph('N° ${num} &nbsp;&nbsp;·&nbsp;&nbsp; ${fmt(today())}',ParagraphStyle('meta',fontSize=9,textColor=GRIS,leading=13)))\nstory.append(Spacer(1,0.5*cm))\nstory.append(HRFlowable(width='100%',thickness=0.5,color=BORDE))\nstory.append(Spacer(1,0.45*cm))\nsec=ParagraphStyle('sec',fontSize=8,fontName='Helvetica-Bold',textColor=AZUL,letterSpacing=1.2,spaceAfter=6)\nstory.append(Paragraph('CLIENTE',sec))\ncl=ParagraphStyle('cl',fontSize=8,textColor=GRIS)\ncv=ParagraphStyle('cv',fontSize=9,textColor=NEGRO)\nfor label,val in [('Nombre / Empresa','${cliente.replace(/'/g,"\\'")}'),('RUT','${rut}'),('Dirección','${dir.replace(/'/g,"\\'")}'),('Contacto','${contacto.replace(/'/g,"\\'")}')]:\n    if val and val not in ('—',''):\n        row=Table([[Paragraph(label,cl),Paragraph(val,cv)]],colWidths=[3.5*cm,13.9*cm])\n        row.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BOTTOMPADDING',(0,0),(-1,-1),3),('TOPPADDING',(0,0),(-1,-1),1)]))\n        story.append(row)\nstory.append(Spacer(1,0.5*cm))\nstory.append(HRFlowable(width='100%',thickness=0.5,color=BORDE))\nstory.append(Spacer(1,0.45*cm))\nstory.append(Paragraph('DETALLE',sec))\nstory.append(Spacer(1,0.25*cm))\nth=ParagraphStyle('th',fontSize=8,fontName='Helvetica-Bold',textColor=colors.white)\ntd=ParagraphStyle('td',fontSize=9,textColor=NEGRO,leading=12)\ntd_r=ParagraphStyle('tdr',fontSize=9,textColor=NEGRO,alignment=2)\ndet_rows=[[Paragraph('Descripción',th),Paragraph('m²',th),Paragraph('Precio / m²',th),Paragraph('Total neto',th)]]\ndet_rows.append([Paragraph('Membrana impermeabilizante Membrax',td),Paragraph('${fmtNraw(m2)}',td_r),Paragraph('$ ${fmtNraw(precioUsado)}',td_r),Paragraph('$ ${fmtNraw(ingP)}',td_r)])\n${ingAp>0?`det_rows.append([Paragraph('Aplicación proyectada',td),Paragraph('${fmtNraw(m2)}',td_r),Paragraph('$ ${fmtNraw(ap)}',td_r),Paragraph('$ ${fmtNraw(ingAp)}',td_r)])`:'# sin aplicacion'}\ndet_tbl=Table(det_rows,colWidths=[9*cm,2*cm,3.5*cm,3*cm])\ndet_tbl.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),AZUL),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,GRIS_CLR]),('LINEBELOW',(0,0),(-1,-1),0.3,BORDE),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),('LEFTPADDING',(0,0),(-1,-1),10),('RIGHTPADDING',(0,0),(-1,-1),10),('ALIGN',(1,0),(-1,-1),'RIGHT')]))\nstory.append(det_tbl)\nstory.append(Spacer(1,0.5*cm))\ntl=ParagraphStyle('tl',fontSize=9,textColor=GRIS,alignment=2)\ntv=ParagraphStyle('tv',fontSize=9,alignment=2)\ntl_b=ParagraphStyle('tlb',fontSize=11,fontName='Helvetica-Bold',textColor=AZUL,alignment=2)\ntv_b=ParagraphStyle('tvb',fontSize=11,fontName='Helvetica-Bold',textColor=AZUL,alignment=2)\ntot_rows=[]\n${ingAp>0?`tot_rows.append([Paragraph('Subtotal membrana',tl),Paragraph('$ ${fmtNraw(ingP)}',tv)])\ntot_rows.append([Paragraph('Subtotal aplicación',tl),Paragraph('$ ${fmtNraw(ingAp)}',tv)])`:`tot_rows.append([Paragraph('Subtotal membrana',tl),Paragraph('$ ${fmtNraw(ingP)}',tv)])`}\ntot_rows.append([Paragraph('IVA (19%)',tl),Paragraph('$ ${fmtNraw(iva)}',tv)])\ntot_rows.append([Paragraph('TOTAL CON IVA',tl_b),Paragraph('$ ${fmtNraw(totalIva)}',tv_b)])\ntot_tbl=Table(tot_rows,colWidths=[12.9*cm,4.5*cm])\ntot_tbl.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5),('LINEABOVE',(0,-2),(-1,-2),0.5,BORDE),('LINEABOVE',(0,-1),(-1,-1),1.5,AZUL),('BACKGROUND',(0,-1),(-1,-1),AZUL_CLR)]))\nstory.append(tot_tbl)\n${nota?`nota_box=Table([[Paragraph('${nota.replace(/'/g,"\\'")}',ParagraphStyle('nb',fontSize=8,textColor=GRIS,leading=12))]],colWidths=[17.4*cm])\nnota_box.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,-1),GRIS_CLR),('LINEBEFORE',(0,0),(0,-1),2,VERDE),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),('LEFTPADDING',(0,0),(-1,-1),12),('RIGHTPADDING',(0,0),(-1,-1),12)]))\nstory.append(Spacer(1,0.5*cm))\nstory.append(nota_box)`:'# sin nota'}\nstory.append(Spacer(1,1.2*cm))\nstory.append(HRFlowable(width='100%',thickness=0.5,color=BORDE))\nstory.append(Spacer(1,0.3*cm))\nstory.append(Paragraph('Membrax SpA &nbsp;·&nbsp; info@membrax.cl &nbsp;·&nbsp; www.membrax.cl<br/><font color="#9CA3AF">Impermeabilización · Aislación · Rehabilitación</font>',ParagraphStyle('ft',fontSize=8,textColor=GRIS,alignment=1,leading=13)))\ndoc.build(story)\nprint(base64.b64encode(buf.getvalue()).decode())`}]
+      })
+    });
+    const data=await resp.json();
+    const b64=data.content[0].text.trim();
+    const link=document.createElement('a');
+    link.href='data:application/pdf;base64,'+b64;
+    link.download=`Cotizacion_Membrax_${num}.pdf`;
+    link.click();
+    showMsg('msg-cot',true,'✓ PDF descargado correctamente.');
+  }catch(err){showMsg('msg-cot',false,'Error generando PDF.');}
+  btn.style.display='';loading.style.display='none';
+}
+
+// ══ FILTROS MOVIMIENTOS ══
+function buildFilters(){
+  const meses=new Set(),resps=new Set(),trabs=new Set();
+  movimientos.forEach(m=>{
+    if(m.fecha){const p=m.fecha.split('-');if(p.length>=2)meses.add(p[0]+'-'+p[1]);}
+    if(m.tipo==='entrada'&&m.proveedor)resps.add(m.proveedor);
+    if(m.tipo!=='entrada'&&m.responsable)resps.add(m.responsable);
+    if(m.trabajo)trabs.add(m.trabajo);
+  });
+  const fMes=document.getElementById('f-mes');const cm=fMes.value;
+  fMes.innerHTML='<option value="">Todos</option>';
+  [...meses].sort().reverse().forEach(ym=>{const[y,mo]=ym.split('-');fMes.innerHTML+=`<option value="${ym}" ${cm===ym?'selected':''}>${MESES[parseInt(mo)-1]} ${y}</option>`;});
+  const fResp=document.getElementById('f-resp');const cr=fResp.value;
+  fResp.innerHTML='<option value="">Todos</option>';
+  [...resps].sort().forEach(r=>{fResp.innerHTML+=`<option value="${r}" ${cr===r?'selected':''}>${r}</option>`;});
+  const fTrab=document.getElementById('f-trab');const ct=fTrab.value;
+  fTrab.innerHTML='<option value="">Todos</option>';
+  [...trabs].sort().forEach(t=>{fTrab.innerHTML+=`<option value="${t}" ${ct===t?'selected':''}>${t}</option>`;});
+}
+
+function resetMov(){['f-mes','f-tipo','f-resp','f-trab','f-desde','f-hasta'].forEach(id=>document.getElementById(id).value='');renderMov();}
+
+function renderMov(){
+  const fMes=document.getElementById('f-mes').value,fTipo=document.getElementById('f-tipo').value,
+    fResp=document.getElementById('f-resp').value,fTrab=document.getElementById('f-trab').value,
+    fDesde=document.getElementById('f-desde').value,fHasta=document.getElementById('f-hasta').value;
+  let list=movimientos.map((m,i)=>({...m,_localIdx:i})).reverse();
+  if(fMes)list=list.filter(m=>m.fecha&&m.fecha.startsWith(fMes));
+  if(fTipo)list=list.filter(m=>m.tipo===fTipo);
+  if(fResp)list=list.filter(m=>m.proveedor===fResp||m.responsable===fResp);
+  if(fTrab)list=list.filter(m=>m.trabajo===fTrab);
+  if(fDesde)list=list.filter(m=>m.fecha&&m.fecha>=fDesde);
+  if(fHasta)list=list.filter(m=>m.fecha&&m.fecha<=fHasta);
+  const hf=['f-mes','f-tipo','f-resp','f-trab','f-desde','f-hasta'].some(id=>document.getElementById(id).value!=='');
+  const sb=document.getElementById('sub-bar');
+  if(hf){
+    document.getElementById('sb-in').textContent=list.filter(m=>m.tipo==='entrada').reduce((s,m)=>s+m.cant,0);
+    document.getElementById('sb-out').textContent=list.filter(m=>m.tipo!=='entrada').reduce((s,m)=>s+m.cant,0);
+    document.getElementById('sb-m2').textContent=Math.round(list.filter(m=>m.m2).reduce((s,m)=>s+parseFloat(m.m2||0),0));
+    sb.style.display='grid';
+  }else sb.style.display='none';
+  document.getElementById('mov-info').textContent=hf?`Mostrando ${list.length} de ${movimientos.length} movimiento(s)`:`${movimientos.length} movimiento(s) en total`;
+  const tipoLabel={entrada:'Compra',obra:'Uso obra',venta:'Venta tinetas'},tipoClass={entrada:'b-in',obra:'b-obra',venta:'b-venta'};
+  const tbody=document.getElementById('t-mov');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty">Sin movimientos.</td></tr>';return;}
+  tbody.innerHTML=list.map(m=>`<tr>
+    <td style="white-space:nowrap;font-size:12px">${fmt(m.fecha)}</td>
+    <td><span class="badge ${tipoClass[m.tipo]||'b-obra'}">${tipoLabel[m.tipo]||m.tipo}</span></td>
+    <td style="font-weight:600;text-align:center">${m.cant}</td>
+    <td>${m.tipo==='entrada'?(m.proveedor||'-'):(m.responsable||'-')}</td>
+    <td>${m.tipo==='entrada'?(m.factura?'OC:'+m.factura:'-'):(m.trabajo||'-')}</td>
+    <td style="text-align:center;color:#9ca3af">${m.m2||''}</td>
+    <td style="color:#9ca3af;font-size:12px;max-width:120px">${m.nota||''}</td>
+    <td><button class="btn btn-d" onclick="eliminarMov(${m._row},${m._localIdx})">🗑</button></td>
+  </tr>`).join('');
+}
+
+// ══ INIT ══
+document.getElementById('in-fecha').value=today();
+document.getElementById('out-fecha').value=today();
+document.getElementById('pr-inicio').value=today();
+document.getElementById('cot-num').value='COT-'+today().replace(/-/g,'').slice(2);
+const venc=vencimiento();
+document.getElementById('cot-nota').value=`Cotización válida por 10 días hábiles (vence el ${fmt(venc)}). Precios netos, IVA incluido en el total.`;
+
+loadAll();
+</script>
+</body>
+</html>
