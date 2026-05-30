@@ -604,6 +604,7 @@ async function registrarProyecto(){
   updateStats();renderProyectos();
   ['pr-cliente','pr-nombre','pr-m2','pr-precio','pr-precio-ap','pr-tinetas','pr-notas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('pr-estado').value='activo';
+  document.getElementById('pr-inicio').value=today();
   showMsg('msg-pr',true,`✓ Proyecto "${cliente}" guardado.`);
 }
  
@@ -743,6 +744,18 @@ function calcularCotizacion(){
   document.getElementById('cr-margenp').textContent=`${mp}%`;
 }
  
+function limpiarCotizador(){
+  ['cot-cliente','cot-rut','cot-dir','cot-contacto','cot-m2','cot-precio-manual'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cot-ap').value='4000';
+  document.getElementById('cot-num').value=fmtCotNum(COT_CONTADOR);
+  const venc=vencimiento();
+  document.getElementById('cot-nota').value=`Cotización válida por 10 días hábiles (vence el ${fmt(venc)}). Precios netos, IVA incluido en el total.`;
+  document.getElementById('cot-result').style.display='none';
+  document.getElementById('precio-hint').textContent='Se calcula automático según m²';
+  document.getElementById('precio-hint').className='precio-hint';
+  cotCache={};
+}
+ 
 async function guardarCotizacion(){
   const m2=parseFloat(document.getElementById('cot-m2').value)||0;
   const ap=parseFloat(document.getElementById('cot-ap').value)||0;
@@ -753,7 +766,7 @@ async function guardarCotizacion(){
   proyectos.push({_row:proyectos.length+2,cliente,nombre:'Cotización guardada',m2,precio:cotCache.precioUsado,precioAp:ap,tinetas:cotCache.tin,inicio:today(),estado:'pendiente',notas:'Generado desde cotizador'});
   updateStats();renderProyectos();
   showMsg('msg-cot',true,'✓ Guardado como proyecto pendiente.');
-  setTimeout(()=>goPage('proyectos'),1500);
+  setTimeout(()=>{limpiarCotizador();goPage('proyectos');},1500);
 }
  
 async function generarPDF(){
@@ -939,6 +952,7 @@ async function generarPDF(){
  
     doc.save(`Cotizacion_Membrax_${num}.pdf`);
     showMsg('msg-cot',true,'✓ PDF descargado correctamente.');
+    setTimeout(()=>limpiarCotizador(),2000);
  
   }catch(err){
     console.error(err);
