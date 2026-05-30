@@ -964,7 +964,26 @@ async function generarPDF(){
     doc.text('Impermeabilizacion · Aislacion · Rehabilitacion',W/2,290,{align:'center'});
  
     doc.save(`Cotizacion_Membrax_${num}.pdf`);
-    showMsg('msg-cot',true,'✓ PDF descargado correctamente.');
+ 
+    // Guardar cotización en Sheets y actualizar contador
+    try{
+      const id=genId();
+      await sheetAppend('Cotizaciones',[
+        id,num,today(),cliente,rut,dir,contacto,
+        m2,precioUsado,ap,neto,iva,totalIva,nota
+      ]);
+      // Actualizar contador en Sheets
+      const tk=await getGSToken();
+      if(tk){
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
+          method:'PUT',
+          headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+          body:JSON.stringify({values:[[COT_CONTADOR]]})
+        });
+      }
+    }catch(e){console.log('Error guardando cotización:',e);}
+ 
+    showMsg('msg-cot',true,`✓ PDF descargado y cotización ${num} guardada.`);
     setTimeout(()=>limpiarCotizador(),2000);
  
   }catch(err){
