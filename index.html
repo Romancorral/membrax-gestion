@@ -394,10 +394,15 @@ async function sheetAppend(sheet, values){
 async function sheetUpdate(range, values){
   const tk = await getGSToken();
   if(!tk) return;
+  // Acepta valor simple, array 1D o array 2D
+  let body;
+  if(!Array.isArray(values)) body={values:[[values]]};
+  else if(!Array.isArray(values[0])) body={values:[values]};
+  else body={values};
   await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=USER_ENTERED`,{
     method:'PUT',
     headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
-    body: JSON.stringify({values:[values]})
+    body: JSON.stringify(body)
   });
 }
  
@@ -491,12 +496,9 @@ async function guardarConfig(){
   const tineta=parseFloat(document.getElementById('cfg-tineta').value)||69500;
   const m2tin=parseFloat(document.getElementById('cfg-m2tineta').value)||7;
   COSTO_TINETA=tineta; M2_POR_TINETA=m2tin;
-  // Actualizar Config sheet — reescribir filas
-  await sheetUpdate('Config!A2:B4',[
-    ['costo_tineta',tineta],
-  ]);
-  await sheetUpdate('Config!A3:B3',[['m2_tineta',m2tin]]);
-  showMsg('msg-cfg',true,'✓ Configuración guardada. El cotizador y proyectos ya usan los nuevos valores.');
+  await sheetUpdate('Config!B2',tineta);
+  await sheetUpdate('Config!B3',m2tin);
+  showMsg('msg-cfg',true,'✓ Configuración guardada.');
 }
  
 function fmtCotNum(n){
@@ -504,9 +506,17 @@ function fmtCotNum(n){
 }
  
 async function incrementarContador(){
+  const actual=COT_CONTADOR;
   COT_CONTADOR++;
-  await sheetUpdate('Config!A4:B4',[['cot_contador',COT_CONTADOR]]);
-  return COT_CONTADOR-1;
+  const tk=await getGSToken();
+  if(tk){
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Config!B4?valueInputOption=USER_ENTERED`,{
+      method:'PUT',
+      headers:{Authorization:`Bearer ${tk}`,'Content-Type':'application/json'},
+      body:JSON.stringify({values:[[COT_CONTADOR]]})
+    });
+  }
+  return actual;
 }
  
 function switchItab(id,el){
